@@ -34,7 +34,11 @@ var app = {
         screen.lockOrientation('landscape');
         app.receivedEvent('deviceready');
     },
-
+    updateOrientation: function(orientation){
+        app.deviceAlpha = orientation.alpha;
+        app.deviceGamma = orientation.gamma;
+        app.deviceBeta = orientation.beta;
+    },
     orientationChange: function() {
         if( window.orientation == 0 ){
             app.betaAxis = 'x';
@@ -71,31 +75,35 @@ var app = {
          * Initialze the scene.
          */
         function initializeScene(){
-            renderer = new THREE.WebGLRenderer({antialias:true});
+            app.deviceAlpha = null;
+            app.deviceGamma = null;
+            app.deviceBeta = null;
+            app.betaAxis = 'x';
+            app.gammaAxis = 'y';
+            app.betaAxisInversion = -1;
+            app.gammaAxisInversion = -1;
 
-            // Set the background color of the renderer to black, with full opacity
-            renderer.setClearColor(0x000000, 1);
+            document.body.style.zoom = 1 / window.devicePixelRatio;
+            var w = window.innerWidth * window.devicePixelRatio;
+            var h = window.innerHeight * window.devicePixelRatio;
 
-            // Get the size of the inner window (content area) to create a full size renderer
-            canvasWidth = window.innerWidth;
-            canvasHeight = window.innerHeight;
-
-            // Set the renderers size to the content areas size
-            renderer.setSize(canvasWidth, canvasHeight);
+            app.scene = new THREE.Scene();
+            app.camera = new THREE.PerspectiveCamera( 75, w/h, 0.1, 1000 )
+            app.renderer = new THREE.WebGLRenderer({antialias: true});
+            app.renderer.setSize( w,h );
 
             // Get the DIV element from the HTML document by its ID and append the renderers DOM
             // object to it
-            document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
+            document.getElementById("WebGLCanvas").appendChild(app.renderer.domElement);
 
             // Create the scene, in which all objects are stored (e. g. camera, lights,
             // geometries, ...)
-            scene = new THREE.Scene();
 
             // After definition, the camera has to be added to the scene.
-            camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100);
+            camera = new THREE.PerspectiveCamera(45, w / h, 1, 100);
             camera.position.set(0, 0, 10);
             camera.lookAt(scene.position);
-            scene.add(camera);
+            app.scene.add(camera);
 
             // 3. Define the faces by setting the vertices indices
             var triangleGeometry = new THREE.Geometry();
@@ -111,7 +119,7 @@ var app = {
 
             var triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
             triangleMesh.position.set(-1.5, 0.0, 4.0);
-            scene.add(triangleMesh);
+            app.scene.add(triangleMesh);
 
             var squareGeometry = new THREE.Geometry();
             squareGeometry.vertices.push(new THREE.Vector3(-1.0,  1.0, 0.0));
@@ -129,14 +137,14 @@ var app = {
 
             var squareMesh = new THREE.Mesh(squareGeometry, squareMaterial);
             squareMesh.position.set(1.5, 0.0, 4.0);
-            scene.add(squareMesh);
+            app.scene.add(squareMesh);
         }
 
         /**
          * Render the scene. Map the 3D world to the 2D screen.
          */
         function renderScene(){
-            renderer.render(scene, camera);
+            app.renderer.render(scene, camera);
         }
     }
 };

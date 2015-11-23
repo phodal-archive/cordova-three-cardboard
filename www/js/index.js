@@ -62,19 +62,23 @@ var app = {
         app.deviceAlpha = null;
         app.deviceGamma = null;
         app.deviceBeta = null;
-        app.betaAxis = 'x'
-        app.gammaAxis = 'y'
-        app.betaAxisInversion = -1
-        app.gammaAxisInversion = -1
+        app.betaAxis = 'x';
+        app.gammaAxis = 'y';
+        app.betaAxisInversion = -1;
+        app.gammaAxisInversion = -1;
 
-        document.body.style.zoom = 1 / window.devicePixelRatio
-        var w = window.innerWidth * window.devicePixelRatio
-        var h = window.innerHeight * window.devicePixelRatio
+        //document.body.style.zoom = 1 / window.devicePixelRatio;
+        var w = window.innerWidth * window.devicePixelRatio;
+        var h = window.innerHeight * window.devicePixelRatio;
 
         app.scene = new THREE.Scene();
         app.camera = new THREE.PerspectiveCamera( 75, w/h, 0.1, 1000 )
         app.renderer = new THREE.WebGLRenderer({antialias: true});
         app.renderer.setSize( w,h );
+
+        app.effect = new THREE.OculusRiftEffect(app.renderer, { worldScale: 100 });
+        app.effect.setSize(window.innerWidth, window.innerHeight);
+
         document.body.appendChild( app.renderer.domElement );
         var geometry = new THREE.BufferGeometry().fromGeometry( new THREE.BoxGeometry( 1, 1, 1 ) )
         var material = new THREE.MeshLambertMaterial( { color: 'blue', ambient: 'blue' })
@@ -118,7 +122,8 @@ var app = {
         requestAnimationFrame( app.renderLoop )
         app.updateCube()
         app.updateFps(t)
-        app.renderer.render( app.scene, app.camera )
+        //app.renderer.render( app.scene, app.camera );
+        app.effect.render( app.scene, app.camera );
     }
 };
 
